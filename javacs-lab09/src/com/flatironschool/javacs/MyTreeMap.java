@@ -64,16 +64,31 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 	private Node findNode(Object target) {
 		// some implementations can handle null as a key, but not this one
 		if (target == null) {
-            throw new NullPointerException();
-	    }
+            		throw new NullPointerException();
+	   	 }
 		
 		// something to make the compiler happy
 		@SuppressWarnings("unchecked")
 		Comparable<? super K> k = (Comparable<? super K>) target;
 		
 		// the actual search
-        // TODO: Fill this in.
-        return null;
+
+		Node node = root; 
+
+		while (node!=null) {
+			int number = k.compareTo(node.key); 
+
+			if (number == 0) {
+				return node; 
+			}
+			else if (number < 0) {
+				node = node.left; 
+			}
+			else if (number > 0) {
+				node = node.right; 
+			}
+		}
+                return null;
 	}
 
 	/**
@@ -92,7 +107,23 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 
 	@Override
 	public boolean containsValue(Object target) {
-		return false;
+		return recursiveContainsValue(root, target); 
+	}
+
+	private boolean recursiveContainsValue(Node node, Object target) {
+		if(node == null) {
+			return false; 
+		}
+		if (equals(node.value, target)) {
+			return true; 
+		}
+		if(recursiveContainsValue(node.left, target)) {
+			return true; 
+		}
+		if(recursiveContainsValue(node.right, target)) {
+			return true; 
+		}
+		return false; 
 	}
 
 	@Override
@@ -117,8 +148,17 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 	@Override
 	public Set<K> keySet() {
 		Set<K> set = new LinkedHashSet<K>();
-        // TODO: Fill this in.
+        	addKeys(root,set);
 		return set;
+	}
+
+	public void addKeys(Node node, Set<K> set) {
+		if (node == null) {
+			return; 
+		}
+		addKeys(node.left, set); 
+		set.add(node.key); 
+		addKeys(node.right,set);
 	}
 
 	@Override
@@ -135,8 +175,38 @@ public class MyTreeMap<K, V> implements Map<K, V> {
 	}
 
 	private V putHelper(Node node, K key, V value) {
-        // TODO: Fill this in.
-        return null;
+        	@SuppressWarnings("unchecked") 
+		Comparable<? super K> k = (Comparable<? super K>) key; 
+		
+		int num = k.compareTo(node.key); 
+
+		Node newNode = new Node(key,value);
+		if (num<0) {
+			if (node.left !=null) {
+				putHelper(node.left, key, value); 
+			}
+			else 
+			{
+				node.left = newNode;
+				size++;
+				return null; 
+			}
+		}
+		if (num>0) {
+			if(node.right != null) {
+				putHelper(node.right, key, value);
+			}
+			else 
+			{
+				node.right = newNode;
+				size++;
+				return null; 
+			}
+		}
+		
+		V oldValue = node.value; 
+		node.value = value; 
+		return oldValue;
 	}
 
 	@Override
